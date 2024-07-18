@@ -1,24 +1,29 @@
 "use client";
 import { useGetUserFlowCharts, UserChart } from "@/hooks/useFlowCharts";
-import {
-	User,
-	useSession,
-	useSupabaseClient,
-} from "@supabase/auth-helpers-react";
-import { useRouter } from "next/navigation";
+import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
+import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { HiTrash } from "react-icons/hi2";
+import { toast, ToastContainer } from "react-toastify";
 
 export default function Home() {
 	const [charts, setCharts] = useState<UserChart[]>([]);
 	const session = useSession();
 	const supabase = useSupabaseClient();
 	const userCharts = useGetUserFlowCharts();
+	const searchParams = useSearchParams();
 
 	useEffect(() => {
 		if (!userCharts) return;
 		setCharts(userCharts);
 	}, [userCharts]);
+
+	useEffect(() => {
+		if (!searchParams) return;
+		if (searchParams.has("error")) {
+			toast.error("Chart not found");
+		}
+	}, [searchParams]);
 
 	const createNewChart = async () => {
 		if (!session) return;
@@ -68,6 +73,7 @@ export default function Home() {
 
 	return (
 		<main className="bg-gray-900 w-svw min-h-svh grid place-content-center">
+			<ToastContainer />
 			{!session && (
 				<a
 					onClick={() => {

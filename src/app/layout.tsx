@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
+import "react-toastify/dist/ReactToastify.css";
 import SupabaseProvider from "@/lib/SupabaseProvider";
 import Navbar from "@/components/Navbar";
+import { ToastContainer } from "react-toastify";
 
 const roboto = Roboto({
 	weight: ["100", "300", "400", "500", "700", "900"],

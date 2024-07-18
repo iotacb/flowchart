@@ -15,8 +15,8 @@ import {
 	useReactFlow,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useSupabaseClient } from "@supabase/auth-helpers-react";
-import { useSearchParams } from "next/navigation";
+import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
+import { useSearchParams, useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
 import NodeSidebar from "@/components/flow/NodeSidebar";
 import { nodeTypes } from "@/components/flow/nodes/Nodes";
@@ -33,6 +33,8 @@ export default function page({}: Props) {
 	const [chartId, setChartId] = useState<string | null>(null);
 	const searchParams = useSearchParams();
 	const supabase = useSupabaseClient();
+	const session = useSession();
+	const router = useRouter();
 
 	const { screenToFlowPosition } = useReactFlow();
 
@@ -47,12 +49,16 @@ export default function page({}: Props) {
 	};
 
 	const fetchChartData = async () => {
+		console.log("fetching chart data");
 		const { data, error } = await supabase
 			.from("charts")
 			.select("*")
-			.eq("id", chartId);
-		if (error) return;
-		if (data.length === 0) return;
+			.eq("id", chartId)
+			.eq("user_id", session?.user.id);
+		if (error || !data) {
+			router.push("/dashboard?error=chart_not_found");
+			return;
+		}
 
 		const chart = data[0];
 
@@ -87,10 +93,10 @@ export default function page({}: Props) {
 	}, [searchParams]);
 
 	useEffect(() => {
-		if (chartId) {
+		if (chartId && session) {
 			fetchChartData();
 		}
-	}, [chartId]);
+	}, [chartId, session]);
 
 	const onNodesChange: OnNodesChange = useCallback(
 		(changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
