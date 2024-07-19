@@ -73,7 +73,7 @@ export default function Home() {
 
 	return (
 		<main className="bg-gray-900 w-svw min-h-svh grid place-content-center">
-			<ToastContainer />
+			<ToastContainer position="bottom-center" />
 			{!session && (
 				<a
 					onClick={() => {
@@ -130,16 +130,8 @@ function Flowcharts({
 					key={index}
 					className="flex justify-between items-center gap-10 border border-zinc-700 rounded-md text-white px-4 py-2 bg-zinc-800"
 				>
-					<h1
-						onClick={() =>
-							router.push(
-								`/chart?id=${chart.id}&chart_name=${chart.chart_name}`
-							)
-						}
-					>
+					<h1 onClick={() => router.push(`/chart?id=${chart.id}`)}>
 						{chart.chart_name}
-						{chart.id}
-						{chart.user_id}
 					</h1>
 					<HiTrash
 						onClick={() => onDeleteChart(chart)}
