@@ -1,6 +1,8 @@
 "use client";
+import { useFlow } from "@/hooks/useFlow";
+import { cn } from "@chrisbrandt/vallium";
 import { Handle, Position } from "@xyflow/react";
-import React, { use, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 type Props = {
 	data: {
@@ -14,10 +16,13 @@ export default function BaseNode({ data, id }: Props) {
 	const [editing, setEditing] = useState(false);
 	const [label, setLabel] = useState(data.label);
 
+	const { onSomethingChanged } = useFlow();
+
 	function onLabelChange(event: React.ChangeEvent<HTMLInputElement>) {
 		const text = event.target.value;
 		setLabel(text);
 		data.label = text;
+		onSomethingChanged(id);
 	}
 
 	useEffect(() => {
@@ -25,18 +30,6 @@ export default function BaseNode({ data, id }: Props) {
 			inputRef.current.focus();
 		}
 	}, [editing]);
-
-	function renderLabel() {
-		return (
-			<p
-				onDoubleClick={() => {
-					setEditing(true);
-				}}
-			>
-				{label}
-			</p>
-		);
-	}
 
 	return (
 		<>
@@ -50,7 +43,11 @@ export default function BaseNode({ data, id }: Props) {
 				id={`${id}_src_left`}
 				position={Position.Left}
 			/>
-			<div className="bg-zinc-700/50 border backdrop-blur-sm border-zinc-700 rounded-full shadow-lg px-4 py-2 text-white hover:border-sky-400">
+			<div
+				className={cn(
+					"bg-zinc-700/50 border backdrop-blur-sm border-zinc-700 rounded-full shadow-lg px-4 py-2 text-white hover:border-sky-400"
+				)}
+			>
 				{editing ? (
 					<input
 						ref={inputRef}

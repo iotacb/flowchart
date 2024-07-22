@@ -9,6 +9,7 @@ import {
 	Node,
 	OnConnect,
 	OnEdgesChange,
+	OnEdgesDelete,
 	OnNodesChange,
 	OnNodesDelete,
 	ReactFlow,
@@ -24,6 +25,7 @@ import { nodeTypes } from "@/components/flow/nodes/Nodes";
 import { v4 as uuid } from "uuid";
 import Loading from "@/components/Loading";
 import Title from "@/components/flow/Title";
+import { FlowContextProvider } from "@/context/FlowContext";
 
 type Props = {};
 
@@ -66,6 +68,12 @@ export default function page({}: Props) {
 			setNodes(chart.nodes);
 		}
 		if (chart.edges !== null) {
+			chart.edges.forEach((edge: Edge) => {
+				const edgeData = edge.data;
+				if (edgeData) {
+					edge.animated = edgeData.animated as boolean;
+				}
+			});
 			setEdges(chart.edges);
 		}
 
@@ -102,17 +110,16 @@ export default function page({}: Props) {
 		}
 	}, [chartId, session]);
 
+	useEffect(() => {
+		if (somethingChanged) {
+			saveChartData();
+			setSomethingChanged(false);
+		}
+	}, [somethingChanged]);
+
 	const onNodesChange: OnNodesChange = useCallback(
 		(changes) => {
 			setNodes((nds) => applyNodeChanges(changes, nds));
-			changes.forEach((change) => {
-				console.log(flowInstance);
-				if (!flowInstance) return;
-				if (change.type === "position") {
-					const node = flowInstance.getNode(change.id);
-					console.log("node added", node);
-				}
-			});
 		},
 		[setNodes]
 	);
@@ -123,7 +130,13 @@ export default function page({}: Props) {
 		[setEdges]
 	);
 
-	const onNodesDelete: OnNodesDelete = useCallback((nodeIds) => {}, []);
+	const onNodesDelete: OnNodesDelete = useCallback((nodeIds) => {
+		setSomethingChanged(true);
+	}, []);
+
+	const onEdgesDelete: OnEdgesDelete = useCallback((edgesIds) => {
+		setSomethingChanged(true);
+	}, []);
 
 	const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
 		event.preventDefault();
@@ -133,7 +146,6 @@ export default function page({}: Props) {
 	const onDrop = useCallback(
 		(event: React.DragEvent<HTMLDivElement>) => {
 			event.preventDefault();
-
 			const type = event.dataTransfer.getData("application/reactflow");
 
 			if (typeof type === "undefined" || !type) {
@@ -151,6 +163,7 @@ export default function page({}: Props) {
 				data: { label: `${type} node` },
 			};
 			setNodes((nds) => nds.concat(newNode));
+			setSomethingChanged(true);
 		},
 		[screenToFlowPosition]
 	);
@@ -158,49 +171,55 @@ export default function page({}: Props) {
 	const onConnect: OnConnect = useCallback(
 		(connection) => {
 			setEdges((eds) => addEdge(connection, eds));
+			setSomethingChanged(true);
 		},
 		[setEdges]
 	);
 
 	return (
-		<main className="flex flex-col w-screen h-screen absolute">
-			<Loading visible={loading} />
-			{/* <h1
+		<FlowContextProvider
+			value={{
+				onSomethingChanged: () => setSomethingChanged(true),
+				flowInstance: flowInstance,
+			}}
+		>
+			<main className="flex flex-col w-screen h-screen absolute">
+				<Loading visible={loading} />
+				{/* <h1
 				contentEditable
 				onInput={(event) => setChartName(event.currentTarget.textContent)}
 				className="fixed top-5 left-1/2 -translate-x-1/2 font-bold text-2xl z-10 text-white"
 			>
 				{chartName}
 			</h1> */}
-			<Title
-				title={chartName}
-				setTitle={setChartName}
-				onTitleSubmit={() => saveChartData()}
-			/>
-			<button
-				onClick={() => saveChartData()}
-				className="px-10 py-4 bg-white fixed top-5 right-5 z-10 rounded-full border-zinc-400"
-			>
-				save
-			</button>
-			<ReactFlow
-				nodes={nodes}
-				edges={edges}
-				nodeTypes={nodeTypes}
-				onInit={(instance) => setFlowInstance(instance)}
-				onNodesChange={onNodesChange}
-				onEdgesChange={onEdgesChange}
-				onNodesDelete={onNodesDelete}
-				onConnect={onConnect}
-				onDragOver={onDragOver}
-				onDrop={onDrop}
-				fitView
-				colorMode="dark"
-			>
-				<Background />
-				<Controls position="top-left" />
-			</ReactFlow>
-			<NodeSidebar />
-		</main>
+				<Title
+					title={chartName}
+					setTitle={setChartName}
+					onTitleSubmit={() => setSomethingChanged(true)}
+				/>
+				<ReactFlow
+					nodes={nodes}
+					edges={edges}
+					nodeTypes={nodeTypes}
+					onInit={(instance) => {
+						setFlowInstance(instance);
+						console.log("flow instance", instance);
+					}}
+					onNodesChange={onNodesChange}
+					onEdgesChange={onEdgesChange}
+					onNodesDelete={onNodesDelete}
+					onEdgesDelete={onEdgesDelete}
+					onConnect={onConnect}
+					onDragOver={onDragOver}
+					onDrop={onDrop}
+					fitView
+					colorMode="dark"
+				>
+					<Background />
+					<Controls position="top-left" />
+				</ReactFlow>
+				<NodeSidebar />
+			</main>
+		</FlowContextProvider>
 	);
 }

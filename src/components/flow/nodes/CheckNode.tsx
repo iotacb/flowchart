@@ -1,5 +1,15 @@
-import { Handle, Position } from "@xyflow/react";
-import React, { useState } from "react";
+"use client";
+import { useFlow } from "@/hooks/useFlow";
+import {
+	Handle,
+	Position,
+	useHandleConnections,
+	useNodesData,
+	useReactFlow,
+} from "@xyflow/react";
+import { on } from "events";
+import { animate } from "framer-motion";
+import React, { useEffect, useState } from "react";
 
 type Props = {
 	data: {
@@ -11,11 +21,44 @@ type Props = {
 
 export default function CheckNode({ data, id }: Props) {
 	const [checked, setChecked] = useState(data.state);
+	const { onSomethingChanged, flowInstance } = useFlow();
+	const { updateEdge } = useReactFlow();
+
+	const connections = useHandleConnections({
+		type: "source",
+		id: `${id}_src_right`,
+	});
 
 	function onClickCheckbox(state: boolean) {
 		setChecked(state);
-		data.state = state;
 	}
+
+	function updateConnectedEdge() {
+		if (!flowInstance) return;
+		connections.forEach((connection) => {
+			const edge = flowInstance.getEdge(connection.edgeId);
+			if (!edge) return;
+			updateEdge(edge.id, {
+				animated: checked,
+				style: {
+					strokeWidth: checked ? 2 : 1,
+					stroke: checked
+						? "var(--flowchart-accent)"
+						: "var(--xy-edge-stroke-default)",
+				},
+			});
+		});
+	}
+
+	useEffect(() => {
+		data.state = checked;
+		updateConnectedEdge();
+		onSomethingChanged();
+	}, [checked]);
+
+	useEffect(() => {
+		updateConnectedEdge();
+	}, [connections]);
 
 	return (
 		<>
