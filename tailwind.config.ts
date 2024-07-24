@@ -1,5 +1,6 @@
 import type { Config } from "tailwindcss";
 import { colors, shadows } from "@chrisbrandt/vallium";
+import { openAsBlob } from "fs";
 const config: Config = {
 	content: [
 		"./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -20,6 +21,18 @@ const config: Config = {
 			},
 			boxShadow: {
 				...shadows,
+			},
+			keyframes: {
+				"ping-small": {
+					"75%": {
+						transform: "scaleX(1.05) scaleY(1.15)",
+						opacity: "0",
+					},
+					"0%, 100%": { opacity: ".5" },
+				},
+			},
+			animation: {
+				"ping-small": "ping-small 2s ease-in-out infinite forwards",
 			},
 		},
 	},

@@ -2,14 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-.react-flow__attribution {
-	display: none !important;
-}
-
 :root {
 	--flowchart-accent: rgb(14 165 233);
-}
-
-html {
-	overflow: hidden;
 }

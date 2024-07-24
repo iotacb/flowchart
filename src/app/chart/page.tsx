@@ -26,6 +26,8 @@ import { v4 as uuid } from "uuid";
 import Loading from "@/components/Loading";
 import Title from "@/components/flow/Title";
 import { FlowContextProvider } from "@/context/FlowContext";
+import { HiArrowLeft, HiChevronLeft } from "react-icons/hi2";
+import Link from "next/link";
 
 type Props = {};
 
@@ -114,6 +116,8 @@ export default function page({}: Props) {
 		if (somethingChanged) {
 			saveChartData();
 			setSomethingChanged(false);
+
+			console.log(edges);
 		}
 	}, [somethingChanged]);
 
@@ -185,13 +189,17 @@ export default function page({}: Props) {
 		>
 			<main className="flex flex-col w-screen h-screen absolute">
 				<Loading visible={loading} />
-				{/* <h1
-				contentEditable
-				onInput={(event) => setChartName(event.currentTarget.textContent)}
-				className="fixed top-5 left-1/2 -translate-x-1/2 font-bold text-2xl z-10 text-white"
-			>
-				{chartName}
-			</h1> */}
+
+				<Link
+					href="/dashboard"
+					className="group border border-zinc-600 hover:border-4 hover:border-zinc-400 grid-cols-1 grid-rows-1 w-20 h-20 hover:w-60 fixed grid items-center top-5 left-5 overflow-hidden font-bold text-2xl bg-zinc-800/50 duration-300 text-white hover:bg-zinc-100/20 p-6 rounded-full z-50 drop-shadow-lg backdrop-blur-lg"
+				>
+					<HiArrowLeft className="ease-in-out row-start-1 col-start-1 text-4xl cursor-pointer duration-300 group-hover:-translate-x-[200%]" />
+					<p className="ease-in-out row-start-1 col-start-1 text-nowrap duration-300 pointer-events-none translate-x-[200%] group-hover:translate-x-0">
+						Go to dashboard
+					</p>
+				</Link>
+
 				<Title
 					title={chartName}
 					setTitle={setChartName}
@@ -214,9 +222,10 @@ export default function page({}: Props) {
 					onDrop={onDrop}
 					fitView
 					colorMode="dark"
+					proOptions={{ hideAttribution: true }}
 				>
 					<Background />
-					<Controls position="top-left" />
+					<Controls position="top-right" />
 				</ReactFlow>
 				<NodeSidebar />
 			</main>

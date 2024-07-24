@@ -9,16 +9,18 @@ type Props = {
 
 export default function Title({ title, setTitle, onTitleSubmit }: Props) {
 	return (
-		<input
-			className="fixed w-1/2 top-5 left-1/2 -translate-x-1/2 font-bold text-2xl text-center z-10 text-white bg-transparent"
-			value={title}
-			onChange={(event) => setTitle(event.target.value)}
-			onKeyDown={(event) => {
-				if (event.key === "Enter") {
-					event.currentTarget.blur();
-				}
-			}}
-			onBlur={onTitleSubmit}
-		></input>
+		<div className="bg-gradient-to-b from-zinc-900 to-transparent z-10 fixed w-full grid p-4 place-content-center">
+			<input
+				className="font-bold text-2xl text-center z-10 text-white bg-transparent"
+				value={title}
+				onChange={(event) => setTitle(event.target.value)}
+				onKeyDown={(event) => {
+					if (event.key === "Enter") {
+						event.currentTarget.blur();
+					}
+				}}
+				onBlur={onTitleSubmit}
+			></input>
+		</div>
 	);
 }

@@ -10,11 +10,14 @@ import {
 import { on } from "events";
 import { animate } from "framer-motion";
 import React, { useEffect, useState } from "react";
+import NodeTitle from "./components/NodeTitle";
+import NodeBody from "./components/NodeBody";
 
 type Props = {
 	data: {
 		label: string;
 		state: boolean;
+		noClick?: boolean;
 	};
 	id: string;
 };
@@ -61,36 +64,14 @@ export default function CheckNode({ data, id }: Props) {
 	}, [connections]);
 
 	return (
-		<>
-			<Handle
-				style={{
-					width: "8px",
-					height: "8px",
-					zIndex: 1,
-				}}
-				type="target"
-				id={`${id}_src_left`}
-				position={Position.Left}
+		<NodeBody noClick={data.noClick} className="flex flex-row gap-2" id={id}>
+			<NodeTitle data={data} id={id} />
+			<input
+				className="cursor-pointer nodrag"
+				type="checkbox"
+				checked={checked}
+				onChange={(event) => onClickCheckbox(event.target.checked)}
 			/>
-			<div className="flex justify-center gap-2 bg-zinc-700/50 border backdrop-blur-sm border-zinc-700 rounded-full shadow-lg px-4 py-2 text-white font-semibold hover:border-sky-400">
-				<p>{data.label}</p>
-				<input
-					className="cursor-pointer nodrag"
-					type="checkbox"
-					checked={checked}
-					onChange={(event) => onClickCheckbox(event.target.checked)}
-				/>
-			</div>
-			<Handle
-				style={{
-					width: "8px",
-					height: "8px",
-					zIndex: 1,
-				}}
-				type="source"
-				id={`${id}_src_right`}
-				position={Position.Right}
-			/>
-		</>
+		</NodeBody>
 	);
 }
