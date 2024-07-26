@@ -26,7 +26,7 @@ import { v4 as uuid } from "uuid";
 import Loading from "@/components/Loading";
 import Title from "@/components/flow/Title";
 import { FlowContextProvider } from "@/context/FlowContext";
-import { HiArrowLeft, HiChevronLeft } from "react-icons/hi2";
+import { HiArrowLeft } from "react-icons/hi2";
 import Link from "next/link";
 
 type Props = {};
@@ -37,8 +37,11 @@ export default function page({}: Props) {
 	const [nodes, setNodes] = useState<Node[]>([]);
 	const [edges, setEdges] = useState<Edge[]>([]);
 	const [chartName, setChartName] = useState<string>("New Chart");
+	const [chartPublic, setChartPublic] = useState<boolean>(false);
+	const [chartPublicId, setChartPublicId] = useState<string | null>(null);
 	const [chartId, setChartId] = useState<string | null>(null);
 	const [flowInstance, setFlowInstance] = useState<ReactFlowInstance>();
+	const [isOwner, setIsOwner] = useState<boolean>(false);
 	const searchParams = useSearchParams();
 	const supabase = useSupabaseClient();
 	const session = useSession();
@@ -50,6 +53,12 @@ export default function page({}: Props) {
 		if (!searchParams) return;
 		if (searchParams.has("id")) {
 			setChartId(searchParams.get("id"));
+		}
+		if (searchParams.has("is_public")) {
+			setChartPublic(searchParams.get("is_public") === "true");
+		}
+		if (searchParams.has("public_id")) {
+			setChartPublicId(searchParams.get("public_id"));
 		}
 	};
 
@@ -83,7 +92,64 @@ export default function page({}: Props) {
 			setChartName(chart.chart_name);
 		}
 
+		if (chart.is_public !== null) {
+			setChartPublic(chart.is_public);
+		}
+
+		if (chart.public_id !== null) {
+			setChartPublicId(chart.public_id);
+		}
+		if (chart.user_id !== null) {
+			setIsOwner(chart.user_id === session?.user.id);
+		}
+
 		setLoading(false);
+	};
+
+	const fetchPublicChartData = async () => {
+		const { data, error } = await supabase
+			.from("charts")
+			.select("*")
+			.eq("public_id", chartPublicId)
+			.eq("is_public", true);
+		if (error || !data || data.length === 0) {
+			router.push("/dashboard?error=chart_not_found");
+			return;
+		}
+
+		const chart = data[0];
+
+		if (chart.nodes !== null) {
+			setNodes(chart.nodes);
+		}
+		if (chart.edges !== null) {
+			chart.edges.forEach((edge: Edge) => {
+				const edgeData = edge.data;
+				if (edgeData) {
+					edge.animated = edgeData.animated as boolean;
+				}
+			});
+			setEdges(chart.edges);
+		}
+
+		if (chart.chart_name !== null) {
+			setChartName(chart.chart_name);
+		}
+		if (chart.user_id !== null) {
+			const isOwner = chart.user_id === session?.user.id;
+			if (isOwner) {
+				router.push("/chart?id=" + chart.id);
+				setIsOwner(isOwner);
+			}
+		}
+		setLoading(false);
+	};
+
+	const genPublicLink = () => {
+		const dev = process.env.NODE_ENV === "development";
+		return dev
+			? `localhost:3000/chart?public_id=${chartPublicId}&is_public=true`
+			: `https://flowchart.chrisbrandt.xyz/chart?public_id=${chartPublicId}&is_public=true`;
 	};
 
 	const saveChartData = async () => {
@@ -94,6 +160,7 @@ export default function page({}: Props) {
 				nodes: nodes,
 				edges: edges,
 				chart_name: chartName,
+				is_public: chartPublic,
 			})
 			.match({ id: chartId });
 		if (error) {
@@ -107,17 +174,19 @@ export default function page({}: Props) {
 	}, [searchParams]);
 
 	useEffect(() => {
+		if (chartPublicId && chartPublic) {
+			fetchPublicChartData();
+			return;
+		}
 		if (chartId && session) {
 			fetchChartData();
 		}
-	}, [chartId, session]);
+	}, [chartId, session, chartPublicId, chartPublic]);
 
 	useEffect(() => {
 		if (somethingChanged) {
 			saveChartData();
 			setSomethingChanged(false);
-
-			console.log(edges);
 		}
 	}, [somethingChanged]);
 
@@ -202,32 +271,60 @@ export default function page({}: Props) {
 
 				<Title
 					title={chartName}
+					isOwner={isOwner}
+					chartPublic={chartPublic}
+					chartPublicLink={genPublicLink()}
 					setTitle={setChartName}
+					setChartPublic={(publicState) => {
+						setChartPublic(publicState);
+						setSomethingChanged(true);
+					}}
 					onTitleSubmit={() => setSomethingChanged(true)}
 				/>
-				<ReactFlow
-					nodes={nodes}
-					edges={edges}
-					nodeTypes={nodeTypes}
-					onInit={(instance) => {
-						setFlowInstance(instance);
-						console.log("flow instance", instance);
-					}}
-					onNodesChange={onNodesChange}
-					onEdgesChange={onEdgesChange}
-					onNodesDelete={onNodesDelete}
-					onEdgesDelete={onEdgesDelete}
-					onConnect={onConnect}
-					onDragOver={onDragOver}
-					onDrop={onDrop}
-					fitView
-					colorMode="dark"
-					proOptions={{ hideAttribution: true }}
-				>
-					<Background />
-					<Controls position="top-right" />
-				</ReactFlow>
-				<NodeSidebar />
+				{!isOwner && (
+					<>
+						<ReactFlow
+							nodes={nodes}
+							edges={edges}
+							nodeTypes={nodeTypes}
+							onInit={(instance) => {
+								setFlowInstance(instance);
+							}}
+							fitView
+							colorMode="dark"
+							proOptions={{ hideAttribution: true }}
+						>
+							<Background />
+							<Controls position="top-right" />
+						</ReactFlow>
+					</>
+				)}
+				{isOwner && (
+					<>
+						<ReactFlow
+							nodes={nodes}
+							edges={edges}
+							nodeTypes={nodeTypes}
+							onInit={(instance) => {
+								setFlowInstance(instance);
+							}}
+							onNodesChange={onNodesChange}
+							onEdgesChange={onEdgesChange}
+							onNodesDelete={onNodesDelete}
+							onEdgesDelete={onEdgesDelete}
+							onConnect={onConnect}
+							onDragOver={onDragOver}
+							onDrop={onDrop}
+							fitView
+							colorMode="dark"
+							proOptions={{ hideAttribution: true }}
+						>
+							<Background />
+							<Controls position="top-right" />
+						</ReactFlow>
+						<NodeSidebar />
+					</>
+				)}
 			</main>
 		</FlowContextProvider>
 	);

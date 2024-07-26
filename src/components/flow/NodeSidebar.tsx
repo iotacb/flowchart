@@ -39,7 +39,6 @@ export default function NodeSidebar({}: Props) {
 				.filter((type) => type !== "start-node")
 				.map((nodeType) => {
 					/* @ts-ignore */
-					const NodeType = nodeTypes[nodeType];
 					return (
 						<div
 							key={nodeType}
@@ -47,7 +46,6 @@ export default function NodeSidebar({}: Props) {
 							draggable
 							className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 rounded-lg cursor-pointer"
 						>
-							{/* <NodeType /> */}
 							{nodeType}
 						</div>
 					);

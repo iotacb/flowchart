@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { HiTrash } from "react-icons/hi2";
 import { toast, ToastContainer } from "react-toastify";
+import { uuid } from "uuidv4";
 
 export default function Home() {
 	const [charts, setCharts] = useState<UserChart[]>([]);
@@ -33,6 +34,7 @@ export default function Home() {
 				{
 					chart_name: "New Chart",
 					user_id: session.user.id,
+					public_id: uuid(),
 					nodes: [
 						{
 							id: "start_node",

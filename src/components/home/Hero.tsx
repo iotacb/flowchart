@@ -7,18 +7,22 @@ type Props = {};
 export default function Hero({}: Props) {
 	return (
 		<div className="container">
+			<div className="absolute top-0 left-0 w-screen h-screen bg-grid -z-10"></div>
 			<div>
-				<h1 className="text-3xl md:text-5xl font-semibold text-center">
+				<p className="text-center px-4 py-2 w-fit mx-auto rounded-full bg-flowchart-accent-translucent border border-flowchart-accent bg-dotted">
+					Version 1.0 just released!
+				</p>
+				<h1 className="mt-5 text-3xl md:text-5xl font-semibold text-center">
 					Plan projects easily with flowcharts
 				</h1>
 				<h1 className="text-2xl md:text-4xl mt-5 font-light text-center text-white/50">
 					Modern, intuitive, and easy to use
 				</h1>
 				<div className="mt-10 flex gap-4 w-full justify-center">
-					<button className="bg-flowchart-accent rounded-full px-4 py-2 border-t border-t-flowchart-accent-bright border-l border-l-flowchart-accent-bright">
+					<button className="bg-flowchart-accent hover:bg-flowchart-accent-bright duration-150 rounded-full px-4 py-2 border-t border-t-flowchart-accent-bright border-l border-l-flowchart-accent-bright">
 						Try a demo
 					</button>
-					<button className="bg-zinc-800 rounded-full px-4 py-2 border-t border-t-zinc-700 border-l border-l-zinc-700">
+					<button className="bg-zinc-800 hover:bg-zinc-700 duration-150 rounded-full px-4 py-2 border-t border-t-zinc-700 border-l border-l-zinc-700">
 						Sign up
 					</button>
 				</div>

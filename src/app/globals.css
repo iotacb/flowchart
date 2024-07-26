@@ -8,3 +8,7 @@
 	--flowchart-accent-bright: rgb(131, 73, 225);
 	--flowchart-accent-dark: rgb(109, 58, 191);
 }
+
+html {
+	overflow-x: hidden;
+}

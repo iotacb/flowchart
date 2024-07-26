@@ -48,6 +48,23 @@ const config: Config = {
 			},
 		},
 	},
-	plugins: [],
+	plugins: [
+		function ({ addComponents }: { addComponents: any }) {
+			addComponents({
+				".bg-dotted": {
+					backgroundImage:
+						"radial-gradient(hsl(0 0% 60% / 0.5) 0.5px, transparent 0.5px)",
+					backgroundColor: "transparent",
+					backgroundSize: "5px 5px",
+				},
+				".bg-grid": {
+					backgroundImage:
+						"linear-gradient(to right, rgb(255, 255, 255, 0.1) 1px, transparent 1px), linear-gradient(to bottom, rgb(255, 255, 255, 0.1) 1px, transparent 1px)",
+					backgroundSize: "3rem 3rem",
+					backgroundPosition: "center center",
+				},
+			});
+		},
+	],
 };
 export default config;
