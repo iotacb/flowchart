@@ -3,5 +3,8 @@
 @tailwind utilities;
 
 :root {
-	--flowchart-accent: rgb(14 165 233);
+	--flowchart-accent: rgb(113, 52, 210);
+	--flowchart-accent-translucent: rgb(113, 52, 210, 0.4);
+	--flowchart-accent-bright: rgb(131, 73, 225);
+	--flowchart-accent-dark: rgb(109, 58, 191);
 }

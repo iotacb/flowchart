@@ -67,7 +67,7 @@ export default function CheckNode({ data, id }: Props) {
 		<NodeBody noClick={data.noClick} className="flex flex-row gap-2" id={id}>
 			<NodeTitle data={data} id={id} />
 			<input
-				className="cursor-pointer nodrag"
+				className="cursor-pointer nodrag accent-flowchart-accent"
 				type="checkbox"
 				checked={checked}
 				onChange={(event) => onClickCheckbox(event.target.checked)}

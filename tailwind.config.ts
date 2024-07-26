@@ -1,6 +1,5 @@
 import type { Config } from "tailwindcss";
 import { colors, shadows } from "@chrisbrandt/vallium";
-import { openAsBlob } from "fs";
 const config: Config = {
 	content: [
 		"./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -18,6 +17,12 @@ const config: Config = {
 				vallium: {
 					...colors,
 				},
+				"flowchart-accent": {
+					DEFAULT: "var(--flowchart-accent)",
+					translucent: "var(--flowchart-accent-translucent)",
+					dark: "var(--flowchart-accent-dark)",
+					bright: "var(--flowchart-accent-bright)",
+				},
 			},
 			boxShadow: {
 				...shadows,
@@ -33,6 +38,13 @@ const config: Config = {
 			},
 			animation: {
 				"ping-small": "ping-small 2s ease-in-out infinite forwards",
+			},
+			container: {
+				center: true,
+				padding: {
+					DEFAULT: "20px",
+					lg: "80px",
+				},
 			},
 		},
 	},

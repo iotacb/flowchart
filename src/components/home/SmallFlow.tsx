@@ -1,12 +1,26 @@
 "use client";
-import { Node, Edge, ReactFlow } from "@xyflow/react";
+import {
+	Node,
+	Edge,
+	ReactFlow,
+	useStore,
+	ReactFlowState,
+	useReactFlow,
+	Background,
+} from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { nodeTypes } from "../flow/nodes/Nodes";
 
 type Props = {};
+const viewportSizeSelector = (state: ReactFlowState) => {
+	return {
+		width: state.width,
+		height: state.height,
+	};
+};
 export default function SmallFlow({}: Props) {
-	const [nodes, setNodes] = useState<Node[]>([
+	const [nodes] = useState<Node[]>([
 		{
 			id: "start_node",
 			type: "start-node",
@@ -69,7 +83,7 @@ export default function SmallFlow({}: Props) {
 			},
 		},
 	]);
-	const [edges, setEdges] = useState<Edge[]>([
+	const [edges] = useState<Edge[]>([
 		{
 			source: "start_node",
 			sourceHandle: "start_node_src_right",
@@ -119,6 +133,13 @@ export default function SmallFlow({}: Props) {
 			id: "xy-edge__447d48e4-586c-444c-bc62-20d9a66e3530447d48e4-586c-444c-bc62-20d9a66e3530_src_right-2871a95e-04d9-4c08-9300-c3cdb53f265f2871a95e-04d9-4c08-9300-c3cdb53f265f_src_left",
 		},
 	]);
+	const { fitView } = useReactFlow();
+
+	const viewportSize = useStore(viewportSizeSelector);
+
+	useEffect(() => {
+		fitView({ duration: 0 });
+	}, [viewportSize.width]);
 
 	return (
 		<ReactFlow
@@ -131,8 +152,8 @@ export default function SmallFlow({}: Props) {
 			zoomOnDoubleClick={false}
 			zoomOnPinch={false}
 			nodesFocusable={false}
-			fitView
 			nodeTypes={nodeTypes}
+			fitView
 			proOptions={{ hideAttribution: true }}
 		></ReactFlow>
 	);

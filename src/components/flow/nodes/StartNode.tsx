@@ -16,7 +16,7 @@ export default function StartNode({ data, id }: Props) {
 		<>
 			<div
 				className={cn(
-					"before:content-[''] before:absolute before:inset-0 before:border-2 before:rounded-full before:animate-ping-small before:-z-10 before:border-sky-500 relative bg-zinc-700/50 border backdrop-blur-sm border-zinc-700 rounded-full shadow-lg px-4 py-2 text-white font-semibold hover:border-sky-400",
+					"before:content-[''] before:absolute before:inset-0 before:border-2 before:rounded-full before:animate-ping-small before:-z-10 before:border-flowchart-accent relative bg-zinc-700/50 border backdrop-blur-sm border-zinc-700 rounded-full shadow-lg px-4 py-2 text-white font-semibold hover:border-sky-400",
 					data.noClick && "pointer-events-none"
 				)}
 			>
