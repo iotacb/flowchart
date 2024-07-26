@@ -38,7 +38,7 @@ export default function Home() {
 					</h1>
 					<p className="w-3/4 lg:w-2/3 text-2xl">
 						Unleash creativity and streamline workflows with our flowchart
-						creator's drag-and-drop and easy to use stuffff.
+						creator&apos;s drag-and-drop and easy to use stuffff.
 					</p>
 
 					<div className="flex gap-4">

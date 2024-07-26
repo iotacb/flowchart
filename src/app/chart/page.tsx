@@ -31,7 +31,7 @@ import Link from "next/link";
 
 type Props = {};
 
-export default function page({}: Props) {
+export default function Page({}: Props) {
 	const [somethingChanged, setSomethingChanged] = useState(false);
 	const [loading, setLoading] = useState(true);
 	const [nodes, setNodes] = useState<Node[]>([]);

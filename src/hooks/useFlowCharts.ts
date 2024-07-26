@@ -38,7 +38,7 @@ export function useGetUserFlowCharts() {
 	return charts;
 }
 
-export function getFlowChart(id: any) {
+export function useGetFlowChart(id: any) {
 	const [nodes, setNodes] = useState<Node[]>([]);
 	const [edges, setEdges] = useState<Edge[]>([]);
 	const supabase = useSupabaseClient();

@@ -20,8 +20,8 @@ export default function Features({}: Props) {
 							</h2>
 							<p className="text-white/50 mt-2">
 								Flowchart provides a simple drag-and-drop interface for creating
-								flowcharts. It's easy to use and intuitive, making it perfect
-								for teams that need to collaborate on projects.
+								flowcharts. It&apos;s easy to use and intuitive, making it
+								perfect for teams that need to collaborate on projects.
 							</p>
 						</div>
 						<Image
@@ -53,9 +53,9 @@ export default function Features({}: Props) {
 							</h2>
 							<p className="text-white/50 mt-2">
 								Flowchart runs in your browser, so you can use it anywhere you
-								go. Whether you're on your desktop, laptop, or mobile device,
-								you can use it to create flowcharts and collaborate with your
-								team.
+								go. Whether you&apos;re on your desktop, laptop, or mobile
+								device, you can use it to create flowcharts and collaborate with
+								your team.
 							</p>
 						</div>
 						<Image
