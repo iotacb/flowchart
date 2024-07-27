@@ -49,146 +49,131 @@ export default function Page({}: Props) {
 
 	const { screenToFlowPosition } = useReactFlow();
 
-	const updateChartInfo = async () => {
-		if (!searchParams) return;
-		if (searchParams.has("id")) {
-			setChartId(searchParams.get("id"));
-		}
-		if (searchParams.has("is_public")) {
-			setChartPublic(searchParams.get("is_public") === "true");
-		}
-		if (searchParams.has("public_id")) {
-			setChartPublicId(searchParams.get("public_id"));
-		}
-	};
+	const updateChartInfo = useCallback(() => {
+		const id = searchParams.get("id");
+		const isPublic = searchParams.get("is_public");
+		const publicId = searchParams.get("public_id");
 
-	const fetchChartData = async () => {
+		if (id) setChartId(id);
+		if (isPublic) setChartPublic(isPublic === "true");
+		if (publicId) setChartPublicId(publicId);
+	}, [searchParams]);
+
+	const fetchChartData = useCallback(async () => {
+		if (!chartId || !session) return;
+
 		const { data, error } = await supabase
 			.from("charts")
 			.select("*")
 			.eq("id", chartId)
-			.eq("user_id", session?.user.id);
-		if (error || !data || data.length === 0) {
+			.eq("user_id", session.user.id);
+
+		if (error || !data?.length) {
 			router.push("/dashboard?error=chart_not_found");
 			return;
 		}
 
 		const chart = data[0];
-
-		if (chart.nodes !== null) {
-			setNodes(chart.nodes);
-		}
-		if (chart.edges !== null) {
-			chart.edges.forEach((edge: Edge) => {
-				const edgeData = edge.data;
-				if (edgeData) {
-					edge.animated = edgeData.animated as boolean;
-				}
-			});
-			setEdges(chart.edges);
-		}
-
-		if (chart.chart_name !== null) {
-			setChartName(chart.chart_name);
-		}
-
-		if (chart.is_public !== null) {
-			setChartPublic(chart.is_public);
-		}
-
-		if (chart.public_id !== null) {
-			setChartPublicId(chart.public_id);
-		}
-		if (chart.user_id !== null) {
-			setIsOwner(chart.user_id === session?.user.id);
-		}
+		setNodes(chart.nodes || []);
+		setEdges(
+			chart.edges?.map((edge: { data: { animated: any } }) => ({
+				...edge,
+				animated: edge.data?.animated,
+			})) || []
+		);
+		setChartName(chart.chart_name || "New Chart");
+		setChartPublic(chart.is_public ?? false);
+		setChartPublicId(chart.public_id || null);
+		setIsOwner(chart.user_id === session.user.id);
 
 		setLoading(false);
-	};
+	}, [chartId, session, supabase, router]);
 
-	const fetchPublicChartData = async () => {
+	const fetchPublicChartData = useCallback(async () => {
+		if (!chartPublicId) return;
+
 		const { data, error } = await supabase
 			.from("charts")
 			.select("*")
 			.eq("public_id", chartPublicId)
 			.eq("is_public", true);
-		if (error || !data || data.length === 0) {
+
+		if (error || !data?.length) {
 			router.push("/dashboard?error=chart_not_found");
 			return;
 		}
 
 		const chart = data[0];
+		setNodes(chart.nodes || []);
+		setEdges(
+			chart.edges?.map((edge: { data: { animated: any } }) => ({
+				...edge,
+				animated: edge.data?.animated,
+			})) || []
+		);
+		setChartName(chart.chart_name || "New Chart");
 
-		if (chart.nodes !== null) {
-			setNodes(chart.nodes);
-		}
-		if (chart.edges !== null) {
-			chart.edges.forEach((edge: Edge) => {
-				const edgeData = edge.data;
-				if (edgeData) {
-					edge.animated = edgeData.animated as boolean;
-				}
-			});
-			setEdges(chart.edges);
+		if (chart.user_id === session?.user.id) {
+			router.push(`/chart?id=${chart.id}`);
+			setIsOwner(true);
 		}
 
-		if (chart.chart_name !== null) {
-			setChartName(chart.chart_name);
-		}
-		if (chart.user_id !== null) {
-			const isOwner = chart.user_id === session?.user.id;
-			if (isOwner) {
-				router.push("/chart?id=" + chart.id);
-				setIsOwner(isOwner);
-			}
-		}
 		setLoading(false);
-	};
+	}, [chartPublicId, session, supabase, router]);
 
 	const genPublicLink = () => {
-		const dev = process.env.NODE_ENV === "development";
-		return dev
-			? `localhost:3000/chart?public_id=${chartPublicId}&is_public=true`
-			: `https://flowchart.chrisbrandt.xyz/chart?public_id=${chartPublicId}&is_public=true`;
+		const baseUrl =
+			process.env.NODE_ENV === "development"
+				? "localhost:3000"
+				: "flowchart.chrisbrandt.xyz";
+		return `${baseUrl}/chart?public_id=${chartPublicId}`;
 	};
 
-	const saveChartData = async () => {
-		if (!chartId) return;
+	const saveChartData = useCallback(async () => {
+		if (!chartId || !somethingChanged) return;
+
 		const { error } = await supabase
 			.from("charts")
-			.update({
-				nodes: nodes,
-				edges: edges,
-				chart_name: chartName,
-				is_public: chartPublic,
-			})
+			.update({ nodes, edges, chart_name: chartName, is_public: chartPublic })
 			.match({ id: chartId });
+
 		if (error) {
 			console.error(error);
-			return;
+		} else {
+			setSomethingChanged(false);
 		}
-	};
+	}, [
+		chartId,
+		nodes,
+		edges,
+		chartName,
+		chartPublic,
+		somethingChanged,
+		supabase,
+	]);
 
 	useEffect(() => {
 		updateChartInfo();
-	}, [searchParams]);
+	}, [updateChartInfo]);
 
 	useEffect(() => {
-		if (chartPublicId && chartPublic) {
+		if (chartPublicId) {
 			fetchPublicChartData();
-			return;
-		}
-		if (chartId && session) {
+		} else if (chartId && session) {
 			fetchChartData();
 		}
-	}, [chartId, session, chartPublicId, chartPublic]);
+	}, [
+		chartId,
+		session,
+		chartPublicId,
+		chartPublic,
+		fetchChartData,
+		fetchPublicChartData,
+	]);
 
 	useEffect(() => {
-		if (somethingChanged) {
-			saveChartData();
-			setSomethingChanged(false);
-		}
-	}, [somethingChanged]);
+		saveChartData();
+	}, [saveChartData]);
 
 	const onNodesChange: OnNodesChange = useCallback(
 		(changes) => {

@@ -49,8 +49,8 @@ export default function SmallFlow({}: Props) {
 			id: "2871a95e-04d9-4c08-9300-c3cdb53f265f",
 			type: "check-node",
 			position: {
-				x: 100,
-				y: 0,
+				x: 70,
+				y: -50,
 			},
 			data: {
 				label: "Cool?",
