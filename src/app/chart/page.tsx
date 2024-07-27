@@ -8,6 +8,8 @@ import {
 	Edge,
 	Node,
 	OnConnect,
+	OnConnectEnd,
+	OnConnectStart,
 	OnEdgesChange,
 	OnEdgesDelete,
 	OnNodesChange,
@@ -38,6 +40,7 @@ export default function Page({}: Props) {
 	const [edges, setEdges] = useState<Edge[]>([]);
 	const [chartName, setChartName] = useState<string>("New Chart");
 	const [chartPublic, setChartPublic] = useState<boolean>(false);
+	const [viewingPublicChart, setViewingPublicChart] = useState<boolean>(false);
 	const [chartPublicId, setChartPublicId] = useState<string | null>(null);
 	const [chartId, setChartId] = useState<string | null>(null);
 	const [flowInstance, setFlowInstance] = useState<ReactFlowInstance>();
@@ -51,12 +54,13 @@ export default function Page({}: Props) {
 
 	const updateChartInfo = useCallback(() => {
 		const id = searchParams.get("id");
-		const isPublic = searchParams.get("is_public");
 		const publicId = searchParams.get("public_id");
 
 		if (id) setChartId(id);
-		if (isPublic) setChartPublic(isPublic === "true");
-		if (publicId) setChartPublicId(publicId);
+		if (publicId) {
+			setViewingPublicChart(true);
+			setChartPublicId(publicId);
+		}
 	}, [searchParams]);
 
 	const fetchChartData = useCallback(async () => {
@@ -157,19 +161,12 @@ export default function Page({}: Props) {
 	}, [updateChartInfo]);
 
 	useEffect(() => {
-		if (chartPublicId) {
+		if (viewingPublicChart) {
 			fetchPublicChartData();
 		} else if (chartId && session) {
 			fetchChartData();
 		}
-	}, [
-		chartId,
-		session,
-		chartPublicId,
-		chartPublic,
-		fetchChartData,
-		fetchPublicChartData,
-	]);
+	}, [chartId, session, chartPublicId, fetchChartData, fetchPublicChartData]);
 
 	useEffect(() => {
 		saveChartData();
@@ -218,7 +215,7 @@ export default function Page({}: Props) {
 				id: uuid(),
 				type,
 				position,
-				data: { label: `${type} node` },
+				data: { label: `Node` },
 			};
 			setNodes((nds) => nds.concat(newNode));
 			setSomethingChanged(true);

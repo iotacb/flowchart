@@ -1,14 +1,6 @@
 "use client";
 import { useFlow } from "@/hooks/useFlow";
-import {
-	Handle,
-	Position,
-	useHandleConnections,
-	useNodesData,
-	useReactFlow,
-} from "@xyflow/react";
-import { on } from "events";
-import { animate } from "framer-motion";
+import { useHandleConnections, useReactFlow } from "@xyflow/react";
 import React, { useEffect, useState } from "react";
 import NodeTitle from "./components/NodeTitle";
 import NodeBody from "./components/NodeBody";
@@ -36,13 +28,16 @@ export default function CheckNode({ data, id }: Props) {
 		setChecked(state);
 	}
 
-	function updateConnectedEdge() {
+	function updateConnectedEdges() {
 		if (!flowInstance) return;
 		connections.forEach((connection) => {
 			const edge = flowInstance.getEdge(connection.edgeId);
 			if (!edge) return;
 			updateEdge(edge.id, {
-				animated: checked,
+				animated: true,
+				data: {
+					animated: true,
+				},
 				style: {
 					strokeWidth: checked ? 2 : 1,
 					stroke: checked
@@ -55,13 +50,13 @@ export default function CheckNode({ data, id }: Props) {
 
 	useEffect(() => {
 		data.state = checked;
-		updateConnectedEdge();
+		updateConnectedEdges();
 		onSomethingChanged();
 	}, [checked]);
 
 	useEffect(() => {
-		updateConnectedEdge();
-	}, [connections]);
+		updateConnectedEdges();
+	}, [connections, flowInstance]);
 
 	return (
 		<NodeBody noClick={data.noClick} className="flex flex-row gap-2" id={id}>

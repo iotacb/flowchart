@@ -15,7 +15,7 @@ export default function Hero({}: Props) {
 				<h1 className="mt-5 text-3xl md:text-5xl font-semibold text-center">
 					Plan projects easily with flowcharts
 				</h1>
-				<h1 className="text-2xl md:text-4xl mt-5 font-light text-center text-white/50">
+				<h1 className="text-2xl md:text-4xl mt-5 font-light text-center text-zinc-400">
 					Modern, intuitive, and easy to use
 				</h1>
 				<div className="mt-10 flex gap-4 w-full justify-center">
@@ -27,7 +27,8 @@ export default function Hero({}: Props) {
 					</button>
 				</div>
 			</div>
-			<div className="mt-6 h-[280px] md:h-[480px]">
+			<div className="mt-6 h-[280px] md:h-[480px] relative">
+				<div className="absolute inset-0 z-10"></div>
 				<ReactFlowProvider>
 					<SmallFlow />
 				</ReactFlowProvider>

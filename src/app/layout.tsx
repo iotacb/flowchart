@@ -3,6 +3,7 @@ import { Manrope, Roboto } from "next/font/google";
 import "./globals.css";
 import "react-toastify/dist/ReactToastify.css";
 import SupabaseProvider from "@/lib/SupabaseProvider";
+import SmoothScroll from "@/components/SmoothScroll";
 
 const manrope = Manrope({
 	weight: ["200", "300", "400", "500", "600", "700", "800"],
@@ -23,8 +24,10 @@ export default function RootLayout({
 	return (
 		<html lang="en" className={manrope.className}>
 			<body className="bg-zinc-900 text-white">
-				{/* <Navbar /> */}
-				<SupabaseProvider>{children}</SupabaseProvider>
+				<SmoothScroll>
+					{/* <Navbar /> */}
+					<SupabaseProvider>{children}</SupabaseProvider>
+				</SmoothScroll>
 			</body>
 		</html>
 	);
