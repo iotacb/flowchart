@@ -4,6 +4,10 @@ import { navLinks } from "../../shared.values";
 import { HiMenu, HiX } from "react-icons/hi";
 import { motion } from "framer-motion";
 import { useSession } from "@supabase/auth-helpers-react";
+import { SignedIn, SignedOut } from "./auth/AuthStateComponents";
+import Link from "next/link";
+import logo from "@/assets/logo.svg";
+import Image from "next/image";
 
 type Props = {};
 
@@ -20,21 +24,26 @@ function RenderNavLinks() {
 	return (
 		<>
 			{navLinks.map((link, index) => (
-				<a
+				<Link
 					className="hover:underline cursor-pointer"
 					key={index}
 					href={link.href}
 				>
 					{link.title}
-				</a>
+				</Link>
 			))}
+			<SignedIn>
+				<Link href={"/dashboard"} className="hover:underline cursor-pointer">
+					Dashboard
+				</Link>
+			</SignedIn>
+			<SignedOut>
+				<Link href={"/login"} className="hover:underline cursor-pointer">
+					Sign in
+				</Link>
+			</SignedOut>
 		</>
 	);
-}
-
-function RenderAuth() {
-	const session = useSession();
-	return <></>;
 }
 
 export default function Navbar({}: Props) {
@@ -48,7 +57,8 @@ export default function Navbar({}: Props) {
 				>
 					{open ? <HiX /> : <HiMenu />}
 				</button>
-				<h1 className="text-2xl font-bold">Flowchart</h1>
+				{/* <h1 className="text-2xl font-bold">Flowchart</h1> */}
+				<Image src={logo} alt="logo" width={100} height={100} />
 				<div className="hidden md:flex gap-5 items-center justify-between font-light">
 					<RenderNavLinks />
 				</div>

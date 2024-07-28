@@ -14,6 +14,9 @@ const manrope = Manrope({
 export const metadata: Metadata = {
 	title: "Flowchart",
 	description: "A flowchart app built with Next.js and React Flow",
+	openGraph: {
+		images: "/og-image.png",
+	},
 };
 
 export default function RootLayout({
@@ -25,7 +28,6 @@ export default function RootLayout({
 		<html lang="en" className={manrope.className}>
 			<body className="bg-zinc-900 text-white">
 				<SmoothScroll>
-					{/* <Navbar /> */}
 					<SupabaseProvider>{children}</SupabaseProvider>
 				</SmoothScroll>
 			</body>

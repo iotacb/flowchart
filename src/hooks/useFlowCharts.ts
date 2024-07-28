@@ -1,6 +1,6 @@
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
-import { Edge, Node } from "@xyflow/react";
-import { useEffect, useState } from "react";
+import { Edge, Node, useReactFlow } from "@xyflow/react";
+import { useCallback, useEffect, useState } from "react";
 
 export type UserChart = {
 	id: string | number;
@@ -60,4 +60,61 @@ export function useGetFlowChart(id: any) {
 			}
 		});
 	return { nodes, edges };
+}
+
+type FlowState = {
+	nodes: Node[];
+	edges: Edge[];
+};
+
+type UseUndoRedoProps = FlowState & {
+	setNodes: React.Dispatch<React.SetStateAction<Node[]>>;
+	setEdges: React.Dispatch<React.SetStateAction<Edge[]>>;
+};
+
+export function useUndoRedo({
+	nodes,
+	edges,
+	setNodes,
+	setEdges,
+}: UseUndoRedoProps) {
+	const [past, setPast] = useState<FlowState[]>([]);
+	const [future, setFuture] = useState<FlowState[]>([]);
+
+	const saveCurrentState = useCallback((currentState: FlowState) => {
+		setPast((prev) => [...prev, currentState]);
+		setFuture([]);
+	}, []);
+
+	const undo = useCallback(() => {
+		if (past.length === 0) return;
+
+		const newPresent = past[past.length - 1];
+		const newPast = past.slice(0, -1);
+
+		setFuture((prev) => [{ nodes, edges }, ...prev]);
+		setPast(newPast);
+		setNodes(newPresent.nodes);
+		setEdges(newPresent.edges);
+	}, [past, nodes, edges, setNodes, setEdges]);
+
+	const redo = useCallback(() => {
+		if (future.length === 0) return;
+
+		const newPresent = future[0];
+		const newFuture = future.slice(1);
+
+		setPast((prev) => [...prev, { nodes, edges }]);
+		setFuture(newFuture);
+		setNodes(newPresent.nodes);
+		setEdges(newPresent.edges);
+	}, [future, nodes, edges, setNodes, setEdges]);
+
+	return {
+		undo,
+		redo,
+		saveCurrentState,
+		canUndo: past.length > 0,
+		canRedo: future.length > 0,
+	};
 }

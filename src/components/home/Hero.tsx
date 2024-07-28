@@ -19,10 +19,10 @@ export default function Hero({}: Props) {
 					Modern, intuitive, and easy to use
 				</h1>
 				<div className="mt-10 flex gap-4 w-full justify-center">
-					<button className="bg-flowchart-accent hover:bg-flowchart-accent-bright duration-150 rounded-full px-4 py-2 border-t border-t-flowchart-accent-bright border-l border-l-flowchart-accent-bright">
+					<button className="bg-flowchart-accent hover:bg-flowchart-accent-bright duration-150 rounded-full px-6 py-3 border-t border-t-flowchart-accent-bright border-l border-l-flowchart-accent-bright">
 						Try a demo
 					</button>
-					<button className="bg-zinc-800 hover:bg-zinc-700 duration-150 rounded-full px-4 py-2 border-t border-t-zinc-700 border-l border-l-zinc-700">
+					<button className="bg-zinc-800 hover:bg-zinc-700 duration-150 rounded-full px-6 py-3 border-t border-t-zinc-700 border-l border-l-zinc-700">
 						Sign up
 					</button>
 				</div>

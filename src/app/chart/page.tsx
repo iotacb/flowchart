@@ -30,6 +30,8 @@ import Title from "@/components/flow/Title";
 import { FlowContextProvider } from "@/context/FlowContext";
 import { HiArrowLeft } from "react-icons/hi2";
 import Link from "next/link";
+import { useUndoRedo } from "@/hooks/useFlowCharts";
+import { cn } from "@chrisbrandt/vallium";
 
 type Props = {};
 
@@ -49,6 +51,13 @@ export default function Page({}: Props) {
 	const supabase = useSupabaseClient();
 	const session = useSession();
 	const router = useRouter();
+
+	const { undo, redo, saveCurrentState, canUndo, canRedo } = useUndoRedo({
+		nodes,
+		edges,
+		setNodes,
+		setEdges,
+	});
 
 	const { screenToFlowPosition } = useReactFlow();
 
@@ -89,7 +98,6 @@ export default function Page({}: Props) {
 		setChartPublic(chart.is_public ?? false);
 		setChartPublicId(chart.public_id || null);
 		setIsOwner(chart.user_id === session.user.id);
-
 		setLoading(false);
 	}, [chartId, session, supabase, router]);
 
@@ -174,15 +182,19 @@ export default function Page({}: Props) {
 
 	const onNodesChange: OnNodesChange = useCallback(
 		(changes) => {
-			setNodes((nds) => applyNodeChanges(changes, nds));
+			const newNodes = applyNodeChanges(changes, nodes);
+			setNodes(newNodes);
+			setSomethingChanged(true);
 		},
-		[setNodes]
+		[nodes, edges, saveCurrentState]
 	);
 	const onEdgesChange: OnEdgesChange = useCallback(
 		(changes) => {
-			setEdges((eds) => applyEdgeChanges(changes, eds));
+			const newEdges = applyEdgeChanges(changes, edges);
+			setEdges(newEdges);
+			setSomethingChanged(true);
 		},
-		[setEdges]
+		[nodes, edges, saveCurrentState]
 	);
 
 	const onNodesDelete: OnNodesDelete = useCallback((nodeIds) => {
@@ -217,18 +229,22 @@ export default function Page({}: Props) {
 				position,
 				data: { label: `Node` },
 			};
-			setNodes((nds) => nds.concat(newNode));
+			const newNodes = nodes.concat(newNode);
+			setNodes(newNodes);
+			saveCurrentState({ nodes: newNodes, edges });
 			setSomethingChanged(true);
 		},
-		[screenToFlowPosition]
+		[screenToFlowPosition, nodes, edges, saveCurrentState]
 	);
 
 	const onConnect: OnConnect = useCallback(
 		(connection) => {
-			setEdges((eds) => addEdge(connection, eds));
+			const newEdges = addEdge(connection, edges);
+			setEdges(newEdges);
+			saveCurrentState({ nodes, edges: newEdges });
 			setSomethingChanged(true);
 		},
-		[setEdges]
+		[nodes, edges, saveCurrentState]
 	);
 
 	return (
@@ -243,7 +259,7 @@ export default function Page({}: Props) {
 
 				<Link
 					href="/dashboard"
-					className="group border border-zinc-600 hover:border-4 hover:border-zinc-400 grid-cols-1 grid-rows-1 w-20 h-20 hover:w-60 fixed grid items-center top-5 left-5 overflow-hidden font-bold text-2xl bg-zinc-800/50 duration-300 text-white hover:bg-zinc-100/20 p-6 rounded-full z-50 drop-shadow-lg backdrop-blur-lg"
+					className="group border border-zinc-600 hover:border-zinc-400 grid-cols-1 grid-rows-1 w-20 h-20 hover:w-60 fixed grid items-center top-5 left-5 overflow-hidden font-bold text-2xl bg-zinc-800/50 duration-300 text-white hover:bg-zinc-100/20 p-6 rounded-full z-50 drop-shadow-lg backdrop-blur-lg"
 				>
 					<HiArrowLeft className="ease-in-out row-start-1 col-start-1 text-4xl cursor-pointer duration-300 group-hover:-translate-x-[200%]" />
 					<p className="ease-in-out row-start-1 col-start-1 text-nowrap duration-300 pointer-events-none translate-x-[200%] group-hover:translate-x-0">
@@ -305,6 +321,28 @@ export default function Page({}: Props) {
 							<Controls position="top-right" />
 						</ReactFlow>
 						<NodeSidebar />
+						<div className="fixed top-40 left-1/2 flex gap-4 z-50">
+							<button
+								className={cn(
+									"bg-zinc-700 rounded-md p-4",
+									canUndo && "bg-green-400"
+								)}
+								onClick={undo}
+								disabled={!canUndo}
+							>
+								Undo
+							</button>
+							<button
+								className={cn(
+									"bg-zinc-700 rounded-md p-4",
+									canRedo && "bg-green-400"
+								)}
+								onClick={redo}
+								disabled={!canRedo}
+							>
+								Redo
+							</button>
+						</div>
 					</>
 				)}
 			</main>

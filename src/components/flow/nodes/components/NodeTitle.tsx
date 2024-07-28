@@ -1,5 +1,5 @@
-import { useFlow } from "@/hooks/useFlow";
 import React, { useEffect, useRef, useState } from "react";
+import { useFlow } from "@/hooks/useFlow";
 
 type Props = {
 	data: any;
@@ -9,35 +9,26 @@ type Props = {
 export default function NodeTitle({ data, id }: Props) {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const [editing, setEditing] = useState(false);
-	const [prevLabel, setPrevLabel] = useState(data.label);
 	const [label, setLabel] = useState(data.label);
 
 	const { onSomethingChanged } = useFlow();
 
 	function onLabelChange(event: React.ChangeEvent<HTMLInputElement>) {
-		const text = event.target.value.trim();
-		if (text.length === 0) {
-			setLabel(prevLabel);
-			return;
-		}
-		setLabel(text);
-		data.label = text;
+		setLabel(event.target.value);
 	}
 
 	function onEditComplete(reset: boolean = false) {
-		if (reset) {
-			setLabel(prevLabel);
-			data.label = prevLabel;
-			setEditing(false);
-			return;
+		if (reset || label.trim().length === 0) {
+			setLabel(data.label);
+		} else {
+			data.label = label.trim();
+			onSomethingChanged(id);
 		}
 		setEditing(false);
-		onSomethingChanged(id);
 	}
 
 	useEffect(() => {
 		if (editing && inputRef.current) {
-			setPrevLabel(data.label);
 			inputRef.current.focus();
 		}
 	}, [editing]);
@@ -51,7 +42,7 @@ export default function NodeTitle({ data, id }: Props) {
 					className="bg-transparent text-white read-only:outline-none"
 					value={label}
 					onChange={onLabelChange}
-					onBlur={() => setEditing(false)}
+					onBlur={() => onEditComplete()}
 					onKeyDown={(event) => {
 						if (event.key === "Enter") {
 							onEditComplete();
@@ -62,13 +53,7 @@ export default function NodeTitle({ data, id }: Props) {
 					}}
 				/>
 			) : (
-				<p
-					onDoubleClick={() => {
-						setEditing(true);
-					}}
-				>
-					{label}
-				</p>
+				<p onDoubleClick={() => setEditing(true)}>{data.label}</p>
 			)}
 		</>
 	);
