@@ -1,11 +1,11 @@
 "use client";
 import { loadStripe } from "@stripe/stripe-js";
-import { useUser } from "@supabase/auth-helpers-react";
+import { useSession } from "@supabase/auth-helpers-react";
 import React, { useEffect, useState } from "react";
 
 export default function Home() {
 	const [stripePromise, setStripePromise] = useState<Promise<any> | null>(null);
-	const user = useUser();
+	const session = useSession();
 
 	useEffect(() => {
 		setStripePromise(loadStripe(process.env.NEXT_PUBLIC_STRIPE_KEY!));
@@ -16,8 +16,8 @@ export default function Home() {
 			const response = await fetch(`/api/payments/create-checkout-session`, {
 				method: "POST",
 				body: JSON.stringify({
-					userId: user?.id,
-					email: user?.email,
+					userId: session?.user?.id,
+					email: session?.user?.email,
 					priceId,
 					subscription,
 				}),
