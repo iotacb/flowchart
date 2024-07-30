@@ -91,6 +91,14 @@ async function handleSubscriptionEvent(
 			.select();
 	}
 
+	if (type === "deleted") {
+		const { data: userData, error: userError } = await supabase
+			.from("subscriptions")
+			.update({ status: "cancelled" })
+			.match({ subscription_id: subscription.id })
+			.select();
+	}
+
 	// if (error) {
 	// 	console.error(`Error during subscription ${type}:`, error);
 	// 	return NextResponse.json({
