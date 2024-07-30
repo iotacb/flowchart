@@ -14,8 +14,8 @@ export async function POST(request: NextRequest) {
 			line_items: [{ price: priceId, quantity: 1 }],
 			metadata: { userId, email, subscription },
 			mode: "subscription",
-			success_url: `https://flowchart.chrisbrandt.xyz/success?session_id={CHECKOUT_SESSION_ID}`,
-			cancel_url: `https://flowchart.chrisbrandt.xyz/cancel`,
+			success_url: `https://flowchart.chrisbrandt.xyz/pricing?success=true&session_id={CHECKOUT_SESSION_ID}`,
+			cancel_url: `https://flowchart.chrisbrandt.xyz/pricing?success=false`,
 			allow_promotion_codes: true,
 		});
 

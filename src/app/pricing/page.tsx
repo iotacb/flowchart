@@ -1,16 +1,7 @@
 "use client";
-import { useGetUserFlowCharts, UserChart } from "@/hooks/useFlowCharts";
 import { loadStripe } from "@stripe/stripe-js";
-import {
-	useSession,
-	useSupabaseClient,
-	useUser,
-} from "@supabase/auth-helpers-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useUser } from "@supabase/auth-helpers-react";
 import React, { useEffect, useState } from "react";
-import { HiTrash } from "react-icons/hi2";
-import { toast, ToastContainer } from "react-toastify";
-import { uuid } from "uuidv4";
 
 export default function Home() {
 	const [stripePromise, setStripePromise] = useState<Promise<any> | null>(null);
