@@ -144,7 +144,7 @@ async function webhookHandler(requestRaw: string, request: NextRequest) {
 		console.error("Error constructing Stripe event:", error);
 		return NextResponse.json({
 			status: 777,
-			error: "Webhook Error: Invalid Signature",
+			error: error,
 		});
 	}
 }
