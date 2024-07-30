@@ -31,6 +31,7 @@ export function useIsPremium() {
 
 	useEffect(() => {
 		fetchSubscriptions().then((subscription) => {
+			console.log("done fetching premium", "data: " + subscription);
 			setPremium(subscription);
 		});
 	}, [session]);
