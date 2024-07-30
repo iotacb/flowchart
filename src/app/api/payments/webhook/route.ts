@@ -5,8 +5,8 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
 export async function POST(request: NextRequest) {
-	const { id, type } = await request.json();
-	console.log(id, type);
+	const reqText = await request.text();
+	return webhookHandler(reqText, request);
 }
 
 async function getCustomerEmail(customerId: string): Promise<string | null> {
@@ -27,12 +27,12 @@ async function handleSubscriptionEvent(
 	const subscription = event.data.object as Stripe.Subscription;
 	const customerEmail = await getCustomerEmail(subscription.customer as string);
 
-	if (!customerEmail) {
-		return NextResponse.json({
-			status: 500,
-			error: "Customer email could not be fetched",
-		});
-	}
+	// if (!customerEmail) {
+	// 	return NextResponse.json({
+	// 		status: 1337,
+	// 		error: "Customer email could not be fetched",
+	// 	});
+	// }
 
 	const subscriptionData: any = {
 		subscription_id: subscription.id,
@@ -44,51 +44,65 @@ async function handleSubscriptionEvent(
 		email: customerEmail,
 	};
 
-	let data: any;
-	let error: any;
+	// let data: any;
+	// let error: any;
 
-	if (type === "deleted") {
-		({ data, error } = await supabase
-			.from("subscriptions")
-			.update({ status: "cancelled" })
-			.match({ id: subscription.id })
-			.select());
+	// if (type === "deleted") {
+	// 	({ data, error } = await supabase
+	// 		.from("subscriptions")
+	// 		.update({ status: "cancelled" })
+	// 		.match({ id: subscription.id })
+	// 		.select());
 
-		if (!error) {
-			const { error: userError } = await supabase
-				.from("user")
-				.update({ subscription: null })
-				.eq("email", customerEmail);
-			if (userError) {
-				console.error("Error updating user subscription status:", userError);
-				return NextResponse.json({
-					status: 500,
-					error: "Error updating user subscription status",
-				});
-			}
-		}
-	} else {
-		({ data, error } = await supabase
+	// 	if (!error) {
+	// 		const { error: userError } = await supabase
+	// 			.from("user")
+	// 			.update({ subscription: null })
+	// 			.eq("email", customerEmail);
+	// 		if (userError) {
+	// 			console.error("Error updating user subscription status:", userError);
+	// 			return NextResponse.json({
+	// 				status: 7331,
+	// 				error: "Error updating user subscription status",
+	// 			});
+	// 		}
+	// 	}
+	// } else {
+	// 	({ data, error } = await supabase
+	// 		.from("subscriptions")
+	// 		[type === "created" ? "insert" : "update"](
+	// 			type === "created" ? [subscriptionData] : subscriptionData
+	// 		)
+	// 		.match({ subscription_id: subscription.id })
+	// 		.select());
+	// }
+	if (type === "created") {
+		const { data: userData, error: userError } = await supabase
 			.from("subscriptions")
-			[type === "created" ? "insert" : "update"](
-				type === "created" ? [subscriptionData] : subscriptionData
-			)
+			.insert({ ...subscriptionData })
+			.select();
+	}
+
+	if (type === "updated") {
+		const { data: userData, error: userError } = await supabase
+			.from("subscriptions")
+			.update({ ...subscriptionData })
 			.match({ subscription_id: subscription.id })
-			.select());
+			.select();
 	}
 
-	if (error) {
-		console.error(`Error during subscription ${type}:`, error);
-		return NextResponse.json({
-			status: 500,
-			error: `Error during subscription ${type}`,
-		});
-	}
+	// if (error) {
+	// 	console.error(`Error during subscription ${type}:`, error);
+	// 	return NextResponse.json({
+	// 		status: 999,
+	// 		error: `Error during subscription ${type}`,
+	// 	});
+	// }
 
 	return NextResponse.json({
 		status: 200,
 		message: `Subscription ${type} success`,
-		data,
+		// data,
 	});
 }
 
@@ -121,7 +135,7 @@ async function webhookHandler(requestRaw: string, request: NextRequest) {
 	} catch (error) {
 		console.error("Error constructing Stripe event:", error);
 		return NextResponse.json({
-			status: 500,
+			status: 777,
 			error: "Webhook Error: Invalid Signature",
 		});
 	}
