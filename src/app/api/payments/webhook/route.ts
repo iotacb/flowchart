@@ -40,7 +40,7 @@ async function handleSubscriptionEvent(
 		status: subscription.status,
 		start_date: new Date(subscription.created * 1000).toISOString(),
 		plan_id: subscription.items.data[0]?.price.id,
-		user_id: subscription.metadata?.userId || "",
+		user_id: subscription.metadata.userId,
 		email: customerEmail,
 	};
 
@@ -87,7 +87,7 @@ async function handleSubscriptionEvent(
 		const { data: userData, error: userError } = await supabase
 			.from("subscriptions")
 			.update({ ...subscriptionData })
-			.match({ subscription_id: subscription.id })
+			.match({ userId: subscriptionData.user_id })
 			.select();
 	}
 
@@ -95,7 +95,7 @@ async function handleSubscriptionEvent(
 		const { data: userData, error: userError } = await supabase
 			.from("subscriptions")
 			.update({ status: "cancelled" })
-			.match({ subscription_id: subscription.id })
+			.match({ userId: subscriptionData.user_id })
 			.select();
 	}
 

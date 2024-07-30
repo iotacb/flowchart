@@ -1,5 +1,6 @@
 "use client";
 import { useGetUserFlowCharts, UserChart } from "@/hooks/useFlowCharts";
+import { useIsPremium } from "@/hooks/usePricing";
 import { useSession, useSupabaseClient } from "@supabase/auth-helpers-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -73,6 +74,8 @@ export default function Home() {
 		setCharts(charts.filter((c) => c.id !== chart.id));
 	};
 
+	const isPremium = useIsPremium();
+
 	return (
 		<main className="bg-gray-900 w-svw min-h-svh grid place-content-center">
 			<ToastContainer position="bottom-center" />
@@ -90,7 +93,7 @@ export default function Home() {
 				<div>
 					<div className="flex flex-col gap-4">
 						<h1 className="text-white text-2xl">
-							Welcome {session.user.email}
+							Welcome {session.user.email} {isPremium && "Premium"}
 						</h1>
 						<button
 							onClick={() => {

@@ -47,10 +47,10 @@ export default function Home() {
 		<main className="bg-gray-900 w-svw min-h-svh grid place-content-center">
 			<button
 				onClick={() => {
-					handleCheckout("price_1Pi06jKq9YOQyluUgI71Kej1", true);
+					handleCheckout("price_1PiM0VKq9YOQyluUmBPSE068", true);
 				}}
 			>
-				Buy
+				444
 			</button>
 		</main>
 	);
