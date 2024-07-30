@@ -14,9 +14,7 @@ const manrope = Manrope({
 export const metadata: Metadata = {
 	title: "Flowchart",
 	description: "A flowchart app built with Next.js and React Flow",
-	openGraph: {
-		images: "/og-image.png",
-	},
+	metadataBase: new URL("https://flowchart.chrisbrandt.xyz"),
 };
 
 export default function RootLayout({
